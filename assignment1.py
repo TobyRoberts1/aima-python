@@ -62,12 +62,13 @@ class ZenPuzzleGarden(Problem):
                         #checks the bottom row and that it is empty
                         if row == height -1 and garden[row - 1][col] == '':
                             list_actions.append(((row,col), 'up'))
-                        #checks the left column and that it is empty
-                        if col == 0 and garden [row][col - 1] == '':
-                            list_actions.append(((row,col), 'right'))
+                        
                         #checks the right column and that it is empty
                         if col == width - 1 and garden[row][col - 1] == '':
                             list_actions.append(((row,col), 'left'))
+                        #checks the left column and that it is empty
+                        if col == 0 and garden [row][col + 1] == '':
+                            list_actions.append(((row,col), 'right'))
 
         else:
             
@@ -93,7 +94,80 @@ class ZenPuzzleGarden(Problem):
         return list_actions
         
         
+    def result(self, state, action):
+    # Task 2.2
+    # Return a new state resulting from a given action being applied to a given state.
+        garden = state[0]
+        monk_pos = state[1]
+        monk_dir = state[2]
 
+        #loops through untill it goes outside the garden, hits a rock, hits a raked tile. 
+        while True: 
+            if monk_pos is None:
+                # If monk is not in the garden, update its position and direction to be in the garden 
+                monk_pos = action[0]
+                monk_dir = action[1]
+            else:
+                # If monk is already in the garden, simulate its movement based on the action
+                new_row, new_col = monk_pos
+                direction = action[1]
+
+                # Update monk's position based on the direction
+                if direction == 'up':
+                    new_row -= 1
+                elif direction == 'down':
+                    new_row += 1
+                elif direction == 'left':
+                    new_col -= 1
+                elif direction == 'right':
+                    new_col += 1
+
+                # Check if the new position is within the garden boundaries
+                if 0 <= new_row < len(garden) and 0 <= new_col < len(garden[0]):
+                    # Check if the new position is a valid move (not a rock or raked tile)
+                    if garden[new_row][new_col] == '':
+                        monk_pos = (new_row, new_col)
+                        monk_dir = direction
+                        garden[new_row][new_col] = direction
+
+                    else: 
+                        break 
+                else: 
+                    break
+
+        return (garden, monk_pos, monk_dir)
+
+
+    # def goal_test(self, state):
+    #     # Task 2.3
+    #     # Return a boolean value indicating if a given state is solved.
+    #     # Retrieve the relevant information from the state
+    #     garden = state[0]
+    #     monk_position = state[1]  
+    #     # Check if there are any unraked tiles left in the garden
+    #     if any('' in row for row in garden):
+    #         return False # There are still unraked tiles, so the goal is not satisfied
+            
+    #     # Check if the monk has returned to the perimeter of the garden
+    #     if monk_position is not None:
+    #         row, col = monk_position
+    #         height, width = len(garden), len(garden[0])
+    #         if row == 0 or row == height - 1 or col == 0 or col == width - 1:
+    #             return True # Monk is back at the perimeter, goal is satisfied
+        
+    #         return False # Monk is not back at the perimeter, goal is not satisfied
+
+
+
+        
+
+
+
+
+
+
+
+'''
     def result(self, state, action):
         # Task 2.2
         # Return a new state resulting from a given action being applied to a given state.
@@ -146,7 +220,7 @@ class ZenPuzzleGarden(Problem):
             if monk_pos == 'rock' or 'up' or 'down' or 'left' or 'right': 
                 monk_pos[1] = monk_pos[1] - 1
                 break
-
+'''
 
         
             # if monk_pos is None:  # Monk is not in the garden, entering from the perimeter
@@ -171,37 +245,40 @@ class ZenPuzzleGarden(Problem):
 
 
 
-    def goal_test(self, state):
-        # Task 2.3
-        # Return a boolean value indicating if a given state is solved.
-
-
-
-
-        raise NotImplementedError
+    
 
 
 
 
 
 
+        # # garden, monk_position, monk_direpathction = state
+        # # height = len(garden)'rock'
+        # # width = len(garden[0])
 
-        # garden, monk_position, monk_direpathction = state
-        # height = len(garden)
-        # width = len(garden[0])
-
-        # # Check if all unraked tiles have been raked
-        # for row in range(height):
-        #     for col in range(width):
-        #         if garden[row][col] == '':
-        #             return False  # Unraked tile found, goal not reached
-
-        # # Check if the monk is back at the perimeter
+        # # # Check if all unraked tiles have been raked
+        # # for row in range(height):
+        # #      # Check if there are any unraked tiles left in the garden
+        # if any('' in row for row in garden):
+        #     return False # There are still unraked tiles, so the goal is not satisfied
+            
+        # # Check if the monk has returned to the perimeter of the garden
         # if monk_position is not None:
         #     row, col = monk_position
+        #     height, width = len(garden), len(garden[0])
         #     if row == 0 or row == height - 1 or col == 0 or col == width - 1:
-        #         return True  # Monk is back at the perimeter, goal reached
-        # return False  # Monk is not back at the perimeter, goal not reached
+        #         return True # Monk is back at the perimeter, goal is satisfied
+        
+        #     return False # Monk is not back at the perimeter, goal is not satisfied   for col in range(width):
+        # #         if garden[row][col] == '':
+        # #             return False  # Unraked tile found, goal not reached
+
+        # # # Check if the monk is back at the perimeter
+        # # if monk_position is not None:
+        # #     row, col = monk_position
+        # #     if row == 0 or row == height - 1 or col == 0 or col == width - 1:
+        # #         return True  # Monk is back at the perimeter, goal reached
+        # # return False  # Monk is not back at the perimeter, goal not reached
     
 
 
@@ -210,7 +287,7 @@ class ZenPuzzleGarden(Problem):
 # Task 3
 # Implement an A* heuristic cost function and assign it to the variable below.
 astar_heuristic_cost = None
-path
+#path
 def beam_search(problem, f, beam_width):
     # Task 4
     # Implement a beam-width version A* search.
