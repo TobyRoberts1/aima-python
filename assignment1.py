@@ -128,34 +128,37 @@ class ZenPuzzleGarden(Problem):
                     if garden[new_row][new_col] == '':
                         monk_pos = (new_row, new_col)
                         monk_dir = direction
-                        garden[new_row][new_col] = direction
+                        #garden[new_row][new_col] = direction
 
                     else: 
                         break 
                 else: 
                     break
+        state = (garden, monk_pos, monk_dir)
+        return state
 
-        return (garden, monk_pos, monk_dir)
 
-
-    # def goal_test(self, state):
-    #     # Task 2.3
-    #     # Return a boolean value indicating if a given state is solved.
-    #     # Retrieve the relevant information from the state
-    #     garden = state[0]
-    #     monk_position = state[1]  
-    #     # Check if there are any unraked tiles left in the garden
-    #     if any('' in row for row in garden):
-    #         return False # There are still unraked tiles, so the goal is not satisfied
+    def goal_test(self, state):
+        # Task 2.3
+        # Return a boolean value indicating if a given state is solved.
+        # Retrieve the relevant information from the state
+        garden = state[0]
+        monk_pos = state[1]
+        monk_dir = state[2]
+        # Check if there are any unraked tiles left in the garden
+        if any('' in row for row in garden):
+            return False # There are still unraked tiles, so the goal is not satisfied
             
-    #     # Check if the monk has returned to the perimeter of the garden
-    #     if monk_position is not None:
-    #         row, col = monk_position
-    #         height, width = len(garden), len(garden[0])
-    #         if row == 0 or row == height - 1 or col == 0 or col == width - 1:
-    #             return True # Monk is back at the perimeter, goal is satisfied
+        # Check if the monk has returned to the perimeter of the garden
+        if monk_pos is None or monk_dir is None:
+            return True
         
-    #         return False # Monk is not back at the perimeter, goal is not satisfied
+            # row, col = monk_pos
+            # height, width = len(garden), len(garden[0])
+            # if row == 0 or row == height - 1 or col == 0 or col == width - 1:
+            #     return True # Monk is back at the perimeter, goal is satisfied
+        
+            # return False # Monk is not back at the perimeter, goal is not satisfied
 
 
 
