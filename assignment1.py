@@ -23,9 +23,9 @@ def read_initial_state_from_file(filename):
             garden[row][col] = 'rock'
         
         monk_pos = None
-        Monk_dir = None
+        monk_dir = None
         #converts garden and everything else to a tuple
-        state = (tuple(tuple(tile)for tile in garden), monk_pos, Monk_dir)
+        state = (tuple(tuple(tile)for tile in garden), monk_pos, monk_dir)
         print(state)
 
     return state
@@ -57,41 +57,44 @@ class ZenPuzzleGarden(Problem):
                 for col in range(width):
                     if garden[row][col] == '':
                         #checks the top row and that it is empty
-                        if row == 0 and garden[row + 1][col] == '':
+                        if row == 0 :
                             list_actions.append(((row,col), 'down'))
                         #checks the bottom row and that it is empty
-                        if row == height -1 and garden[row - 1][col] == '':
+                        if row == height -1 :
                             list_actions.append(((row,col), 'up'))
                         
                         #checks the right column and that it is empty
-                        if col == width - 1 and garden[row][col - 1] == '':
+                        if col == width - 1 :
                             list_actions.append(((row,col), 'left'))
                         #checks the left column and that it is empty
-                        if col == 0 and garden [row][col + 1] == '':
+                        if col == 0 :
                             list_actions.append(((row,col), 'right'))
 
         else:
-            
-            
+                    
             row, col = monk_pos
 
             #checks if it is facing left or right so it can only move up or down. 
             if monk_dir == 'left' or monk_dir == 'right':
                 #check if monk can move up
-                if row > 0 and garden[row - 1][col] == '':
-                    list_actions.append(((row - 1,col), 'up'))
+                if row > 0 and garden[row][col] == '':
+                    list_actions.append(((row,col), 'up'))
                 #check if monk can move down
-                if row < height - 1 and garden[row + 1][col] == '':
-                    list_actions.append(((row + 1,col), 'down'))
+                if row <= height and garden[row][col] == '':
+                    list_actions.append(((row,col), 'down'))
             elif monk_dir == 'up' or monk_dir == 'down':
 
                 #check if monk can move left
-                if col > 0 and garden[row][col - 1] == '':
-                    list_actions.append(((row,col - 1), 'left'))
+                if col >= 0 and garden[row][col] == '':
+                    list_actions.append(((row,col), 'left'))
                 #check if monk can move right 
-                if col < width - 1 and garden[row][col +1] == '':
-                    list_actions.append(((row,col + 1), 'right'))
+                if col <= width  and garden[row][col] == '':
+                    list_actions.append(((row,col), 'right'))
+        print(list_actions)
+        print("\n")
+        
         return list_actions
+    
         
         
     def result(self, state, action):
@@ -100,18 +103,20 @@ class ZenPuzzleGarden(Problem):
         garden = state[0]
         monk_pos = state[1]
         monk_dir = state[2]
+        garden = [list(row) for row in garden]
 
         #loops through untill it goes outside the garden, hits a rock, hits a raked tile. 
         while True: 
             if monk_pos is None:
                 # If monk is not in the garden, update its position and direction to be in the garden 
                 monk_pos = action[0]
-                monk_dir = action[1]
+                monk_dir = action[1]          
             else:
                 # If monk is already in the garden, simulate its movement based on the action
                 new_row, new_col = monk_pos
                 direction = action[1]
 
+#THIS WHY IT NOT PRINTING THE FIRST SQUARE IT GOES INTO. NEED TO KEEP OUD GARDEN TO ENSURE IT IS RIGHT.
                 # Update monk's position based on the direction
                 if direction == 'up':
                     new_row -= 1
@@ -128,15 +133,20 @@ class ZenPuzzleGarden(Problem):
                     if garden[new_row][new_col] == '':
                         monk_pos = (new_row, new_col)
                         monk_dir = direction
-                        #garden[new_row][new_col] = direction
+                        garden[new_row][new_col] = direction
 
                     else: 
                         break 
                 else: 
                     break
-        state = (garden, monk_pos, monk_dir)
+        state = (tuple(tuple(tile)for tile in garden), monk_pos, monk_dir)
+        # state = (garden, monk_pos, monk_dir)
+        print (state)
+        print ('\n')
+        visualise(state)
         return state
 
+    
 
     def goal_test(self, state):
         # Task 2.3
@@ -159,6 +169,177 @@ class ZenPuzzleGarden(Problem):
             #     return True # Monk is back at the perimeter, goal is satisfied
         
             # return False # Monk is not back at the perimeter, goal is not satisfied
+
+# Task 3
+# Implement an A* heuristic cost function and assign it to the variable below.
+astar_heuristic_cost = None
+
+def beam_search(problem, f, beam_width):
+    # Task 4
+    # Implement a beam-width version A* search.
+    # Return a search node containing a solved state.
+    # Experiment with the beam width in the test code to find a solution.
+    # Replace the line below with your code.
+    raise NotImplementedError
+
+if __name__ == "__main__":
+
+    # Task 1 test code
+    
+    print('The loaded initial state is visualised below.')
+    visualise(read_initial_state_from_file('assignment1config.txt'))
+    
+
+    # Task 2 test code
+    
+
+    garden = ZenPuzzleGarden('assignment1config.txt')
+    print('Running breadth-first graph search.')
+    before_time = time()
+    node = breadth_first_graph_search(garden)
+    after_time = time()
+    print(f'Breadth-first graph search took {after_time - before_time} seconds.')
+    if node:
+        print(f'Its solution with a cost of {node.path_cost} is animated below.')
+        animate(node)
+    else:
+        print('No solution was found.')
+    
+
+    # Task 3 test code
+    '''
+    print('Running A* search.')
+    before_time = time()
+    node = astar_search(garden, astar_heuristic_cost)
+    after_time = time()
+    print(f'A* search took {after_time - before_time} seconds.')
+    if node:
+        print(f'Its solution with a cost of {node.path_cost} is animated below.')
+        animate(node)
+    else:
+        print('No solution was found.')
+    '''
+
+    # Task 4 test code
+    '''
+    print('Running beam search.')
+    before_time = time()
+    node = beam_search(garden, lambda n: n.path_cost + astar_heuristic_cost(n), 50)
+    after_time = time()
+    print(f'Beam search took {after_time - before_time} seconds.')
+    if node:
+        print(f'Its solution with a cost of {node.path_cost} is animated below.')
+        animate(node)
+    else:
+        print('No solution was found.')
+    '''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -287,68 +468,11 @@ class ZenPuzzleGarden(Problem):
 
 
 
-# Task 3
-# Implement an A* heuristic cost function and assign it to the variable below.
-astar_heuristic_cost = None
-#path
-def beam_search(problem, f, beam_width):
-    # Task 4
-    # Implement a beam-width version A* search.
-    # Return a search node containing a solved state.
-    # Experiment with the beam width in the test code to find a solution.
-    # Replace the line below with your code.
-    raise NotImplementedError
 
-if __name__ == "__main__":
 
-    # Task 1 test code
-    
-    print('The loaded initial state is visualised below.')
-    visualise(read_initial_state_from_file('assignment1config.txt'))
-    
 
-    # Task 2 test code
-    
-    garden = ZenPuzzleGarden('assignment1config.txt')
-    print('Running breadth-first graph search.')
-    before_time = time()
-    node = breadth_first_graph_search(garden)
-    after_time = time()
-    print(f'Breadth-first graph search took {after_time - before_time} seconds.')
-    if node:
-        print(f'Its solution with a cost of {node.path_cost} is animated below.')
-        animate(node)
-    else:
-        print('No solution was found.')
-    
 
-    # Task 3 test code
-    '''
-    print('Running A* search.')
-    before_time = time()
-    node = astar_search(garden, astar_heuristic_cost)
-    after_time = time()
-    print(f'A* search took {after_time - before_time} seconds.')
-    if node:
-        print(f'Its solution with a cost of {node.path_cost} is animated below.')
-        animate(node)
-    else:
-        print('No solution was found.')
-    '''
 
-    # Task 4 test code
-    '''
-    print('Running beam search.')
-    before_time = time()
-    node = beam_search(garden, lambda n: n.path_cost + astar_heuristic_cost(n), 50)
-    after_time = time()
-    print(f'Beam search took {after_time - before_time} seconds.')
-    if node:
-        print(f'Its solution with a cost of {node.path_cost} is animated below.')
-        animate(node)
-    else:
-        print('No solution was found.')
-    '''
 
 
 
@@ -511,7 +635,7 @@ if __name__ == "__main__":
 
 
     # Task 2 test code
-    '''
+'''
     garden = ZenPuzzleGarden('assignment1config.txt')
     print('Running breadth-first graph search.')
     before_time = time()
@@ -523,10 +647,10 @@ if __name__ == "__main__":
         animate(node)
     else:
         print('No solution was found.')
-    '''
+'''
 
     # Task 3 test code
-    '''
+'''
     print('Running A* search.')
     before_time = time()
     node = astar_search(garden, astar_heuristic_cost)
@@ -540,7 +664,7 @@ if __name__ == "__main__":
     '''
 
     # Task 4 test code
-    '''
+'''
     print('Running beam search.')
     before_time = time()
     node = beam_search(garden, lambda n: n.path_cost + astar_heuristic_cost(n), 50)
@@ -551,4 +675,4 @@ if __name__ == "__main__":
         animate(node)
     else:
         print('No solution was found.')
-    '''
+'''
