@@ -50,9 +50,6 @@ class ZenPuzzleGarden(Problem):
 
         #checks where the monk can enter from when he is outside the garden. 
         if monk_pos is None: 
-            
-            
-
             for row in range(height):
                 for col in range(width):
                     if garden[row][col] == '':
@@ -70,10 +67,10 @@ class ZenPuzzleGarden(Problem):
                         if col == 0 :
                             list_actions.append(((row,col), 'right'))
 
-        else:
-                    
+        #this only runs if he has hit a rock or raked tile, when he is in the garden.       
+        else:   
+                 
             row, col = monk_pos
-
             #checks if it is facing left or right so it can only move up or down. 
             if monk_dir == 'left' or monk_dir == 'right':
                 #check if monk can move up
@@ -90,8 +87,11 @@ class ZenPuzzleGarden(Problem):
                 #check if monk can move right 
                 if col <= width  and garden[row][col] == '':
                     list_actions.append(((row,col), 'right'))
-        print(list_actions)
-        print("\n")
+                            
+
+                            
+        # print(list_actions)
+        # print("\n")
         
         return list_actions
     
@@ -103,72 +103,144 @@ class ZenPuzzleGarden(Problem):
         garden = state[0]
         monk_pos = state[1]
         monk_dir = state[2]
+        
+        #print(state)
         garden = [list(row) for row in garden]
+        
 
-        #loops through untill it goes outside the garden, hits a rock, hits a raked tile. 
-        while True: 
-            if monk_pos is None:
+        if monk_pos is None:
                 # If monk is not in the garden, update its position and direction to be in the garden 
                 monk_pos = action[0]
-                monk_dir = action[1]          
-            else:
-                # If monk is already in the garden, simulate its movement based on the action
-                new_row, new_col = monk_pos
-                direction = action[1]
+                monk_dir = action[1]
 
-#THIS WHY IT NOT PRINTING THE FIRST SQUARE IT GOES INTO. NEED TO KEEP OUD GARDEN TO ENSURE IT IS RIGHT.
-                # Update monk's position based on the direction
-                if direction == 'up':
-                    new_row -= 1
-                elif direction == 'down':
-                    new_row += 1
-                elif direction == 'left':
-                    new_col -= 1
-                elif direction == 'right':
-                    new_col += 1
+        new_row, new_col = monk_pos
+        while True: 
+            
+            #else: 
+                #loops through untill it goes outside the garden, hits a rock, hits a raked tile. 
+                # If monk is already in the garden, simulate its movement based on the action
+                
+                
+                direction = action[1]
 
                 # Check if the new position is within the garden boundaries
                 if 0 <= new_row < len(garden) and 0 <= new_col < len(garden[0]):
-                    # Check if the new position is a valid move (not a rock or raked tile)
+                   
+                     # Check if the new position is a valid move (not a rock or raked tile)
                     if garden[new_row][new_col] == '':
+                        
                         monk_pos = (new_row, new_col)
                         monk_dir = direction
-                        garden[new_row][new_col] = direction
+                        
+
+                    # Update monk's position based on the direction
+                        if direction == 'up':
+                            if new_row != len(garden) - 1:
+                                #CANT USE THE MINUS ONE TO ADD THE THING BEHIND HIM AS ELSE OVER RIGHTS IT WHEN IT IS IN THE MAP
+                                #THAT IS WHY WHEN RUNS IT IS CUTS THE MAP IN HALF AND CHANGES THE ARROWS BEHIND IT. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                garden[new_row + 1][new_col] = direction
+                            new_row -= 1
+                            
+                        elif direction == 'down':
+                            if new_row != 0:
+                                garden[new_row - 1][new_col] = direction
+                            new_row += 1
+                            
+                        elif direction == 'left':
+                            if new_col != len(garden[0]) - 1:
+                                garden[new_row][new_col + 1] = direction
+                            new_col -= 1
+                            
+                        elif direction == 'right':
+                            if new_col != 0:
+                                garden[new_row][new_col - 1] = direction
+                            new_col += 1
+                            
 
                     else: 
                         break 
                 else: 
+                    monk_dir = None
+                    monk_pos = None
+                    if direction == 'up':
+                        if new_row != len(garden):
+                            garden[new_row + 1][new_col] = direction
+                        new_row -= 1
+                       
+                    elif direction == 'down':
+                        if new_row != 0:
+                            garden[new_row - 1][new_col] = direction
+                        new_row += 1
+                       
+                    elif direction == 'left':
+                        if new_col != len(garden[0]):
+                            garden[new_row][new_col + 1] = direction
+                        new_col -= 1
+                       
+                    elif direction == 'right':
+                        if new_col != 0:
+                            garden[new_row][new_col - 1] = direction
+                        new_col += 1
+                       
+                
+                
                     break
+
+
+                
+
+        garden= tuple(tuple(row) for row in garden)
         state = (tuple(tuple(tile)for tile in garden), monk_pos, monk_dir)
-        # state = (garden, monk_pos, monk_dir)
-        print (state)
-        print ('\n')
-        visualise(state)
+        state = (garden, monk_pos, monk_dir)
+        # print (state)
+        # print ('\n')
+        # visualise(state)
         return state
 
     
 
     def goal_test(self, state):
-        # Task 2.3
+        #Task 2.3ome/tr272/Documents/COMPX216/aima-python/assignment1.py", line 201, in <module>
+        #node = breadth_first_graph_search(garden)
+
         # Return a boolean value indicating if a given state is solved.
         # Retrieve the relevant information from the state
         garden = state[0]
         monk_pos = state[1]
         monk_dir = state[2]
-        # Check if there are any unraked tiles left in the garden
-        if any('' in row for row in garden):
-            return False # There are still unraked tiles, so the goal is not satisfied
-            
-        # Check if the monk has returned to the perimeter of the garden
-        if monk_pos is None or monk_dir is None:
+        i = 0
+        #loops through every tile in the garden to check that they have all been raked
+        for row in range(len(garden)):
+            for col in range(len(garden[0])):
+                if garden[row][col] == '':
+                    i += 1
+        if i == 0 and monk_pos is None and monk_dir is None:
             return True
-        
-            # row, col = monk_pos
-            # height, width = len(garden), len(garden[0])
-            # if row == 0 or row == height - 1 or col == 0 or col == width - 1:
-            #     return True # Monk is back at the perimeter, goal is satisfied
-        
-            # return False # Monk is not back at the perimeter, goal is not satisfied
+        else: 
+            return False
+                
+                    
+            
+     
 
 # Task 3
 # Implement an A* heuristic cost function and assign it to the variable below.
@@ -634,7 +706,7 @@ if __name__ == "__main__":
 
 
 
-    # Task 2 test code
+    # Task 2 test cod
 '''
     garden = ZenPuzzleGarden('assignment1config.txt')
     print('Running breadth-first graph search.')
