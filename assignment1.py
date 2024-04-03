@@ -76,43 +76,39 @@ class ZenPuzzleGarden(Problem):
             #checks which way monk was facing when hit something so it can turn 90 to see where it can go. 
             if monk_dir == 'left' or monk_dir == 'right':
                 #check if monk can move up
-                if curr_row - 1 > 0 and garden[curr_row - 1][curr_col] == '':
+                if curr_row - 1 >= 0 and garden[curr_row - 1][curr_col] == '':
                     list_actions.append(((curr_row - 1, curr_col), 'up'))
                 
                 #check if monk can move down
-                if curr_row + 1 < len(garden) and  garden[curr_row + 1][curr_col] == '':
+                if curr_row + 1 <= len(garden) and  garden[curr_row + 1][curr_col] == '':
                     list_actions.append(((curr_row + 1, curr_col), 'down'))
 
                 #checks if the monk can move out of the garden. 
                 if curr_row == 0:
                     list_actions.append(((curr_row, curr_col), 'up'))
-                    monk_dir = None
-                    monk_pos = None
+               
                 elif curr_row + 1 == len(garden):
                     list_actions.append(((curr_row, curr_col), 'down'))
-                    monk_dir = None
-                    monk_pos = None
+                   
 
 
 
             elif monk_dir == 'up' or monk_dir == 'down':
                 #check if monk can move left
-                if curr_col - 1  > 0 and garden[curr_row][curr_col - 1] == '':
+                if curr_col - 1  >= 0 and garden[curr_row][curr_col - 1] == '':
                     list_actions.append(((curr_row, curr_col - 1), 'left'))
 
                 #check if monk can move right 
-                if curr_col + 1 < len(garden[0]) and garden[curr_row][curr_col + 1] == '':
+                if curr_col + 1 <= len(garden[0]) and garden[curr_row][curr_col + 1] == '':
                     list_actions.append(((curr_row, curr_col + 1), 'right'))
 
                 #checks if the monk can move out of the garden. 
                 if curr_col == 0:
                     list_actions.append(((curr_row, curr_col), 'left'))
-                    monk_dir = None
-                    monk_pos = None
+                    
                 elif curr_col + 1 == len(garden[0]):
                     list_actions.append(((curr_row, curr_col), 'right'))
-                    monk_dir = None
-                    monk_pos = None
+                    
 
         # print(list_actions)
         # print("\n")
@@ -303,7 +299,38 @@ def beam_search(problem, f, beam_width):
     # Return a search node containing a solved state.
     # Experiment with the beam width in the test code to find a solution.
     # Replace the line below with your code.
-    raise NotImplementedError
+
+    #from breadth-first search 
+    f = memoize(f, 'f')
+    node = Node(problem.initial)
+    frontier = PriorityQueue('min', f)
+    frontier.append(node)
+    explored = set()
+    while frontier:
+        node = frontier.pop()
+        if problem.goal_test(node.state):
+            
+            return node
+        explored.add(node.state)
+        for child in node.expand(problem):
+            if child.state not in explored and child not in frontier:
+                frontier.append(child)
+            elif child in frontier:
+                if f(child) < frontier[child]:
+                    del frontier[child]
+                    frontier.append(child)
+        #cut down the frontier to give the best minimum options for the beam search 
+        frontier.heap = heapq.nsmallest(beam_width,frontier.heap)
+
+        
+    return None
+
+
+
+
+
+
+
 
 if __name__ == "__main__":
 
@@ -343,7 +370,7 @@ if __name__ == "__main__":
     
 
     # Task 4 test code
-    '''
+    
     print('Running beam search.')
     before_time = time()
     node = beam_search(garden, lambda n: n.path_cost + astar_heuristic_cost(n), 50)
@@ -354,4 +381,4 @@ if __name__ == "__main__":
         animate(node)
     else:
         print('No solution was found.')
-    '''
+    
