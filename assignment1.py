@@ -76,43 +76,44 @@ class ZenPuzzleGarden(Problem):
             #checks which way monk was facing when hit something so it can turn 90 to see where it can go. 
             if monk_dir == 'left' or monk_dir == 'right':
                 #check if monk can move up
-                if curr_row - 1 >= 0 and garden[curr_row - 1][curr_col] == '':
+                if curr_row - 1 > 0 and garden[curr_row - 1][curr_col] == '':
                     list_actions.append(((curr_row - 1, curr_col), 'up'))
                 
                 #check if monk can move down
-                if curr_row + 1 <= len(garden) and  garden[curr_row + 1][curr_col] == '':
+                if curr_row + 1 < len(garden) and  garden[curr_row + 1][curr_col] == '':
                     list_actions.append(((curr_row + 1, curr_col), 'down'))
 
                 #checks if the monk can move out of the garden. 
                 if curr_row == 0:
                     list_actions.append(((curr_row, curr_col), 'up'))
-               
+                    monk_dir = None
+                    monk_pos = None
                 elif curr_row + 1 == len(garden):
                     list_actions.append(((curr_row, curr_col), 'down'))
-                   
+                    monk_dir = None
+                    monk_pos = None
 
 
 
             elif monk_dir == 'up' or monk_dir == 'down':
                 #check if monk can move left
-                if curr_col - 1  >= 0 and garden[curr_row][curr_col - 1] == '':
+                if curr_col - 1  > 0 and garden[curr_row][curr_col - 1] == '':
                     list_actions.append(((curr_row, curr_col - 1), 'left'))
 
                 #check if monk can move right 
-                if curr_col + 1 <= len(garden[0]) and garden[curr_row][curr_col + 1] == '':
+                if curr_col + 1 < len(garden[0]) and garden[curr_row][curr_col + 1] == '':
                     list_actions.append(((curr_row, curr_col + 1), 'right'))
 
                 #checks if the monk can move out of the garden. 
                 if curr_col == 0:
                     list_actions.append(((curr_row, curr_col), 'left'))
-                    
+                    monk_dir = None
+                    monk_pos = None
                 elif curr_col + 1 == len(garden[0]):
                     list_actions.append(((curr_row, curr_col), 'right'))
-                    
+                    monk_dir = None
+                    monk_pos = None
 
-        # print(list_actions)
-        # print("\n")
-        
         return list_actions
     
         
@@ -134,99 +135,91 @@ class ZenPuzzleGarden(Problem):
                 monk_dir = action[1]
 
         new_row, new_col = monk_pos
+        
+        #loops through untill it goes outside the garden, hits a rock, hits a raked tile. 
+        # If monk is already in the garden, simulate its movement based on the action
+        
         while True: 
-                          
-                #move the  
-                     
-                #loops through untill it goes outside the garden, hits a rock, hits a raked tile. 
-                # If monk is already in the garden, simulate its movement based on the action
+      
+            direction = action[1]
+
+            #sets the new tile infrom of the monk 
+            if direction =='up':
+                new_row -= 1
+            elif direction == 'down':
+                new_row += 1
+            elif direction == 'left':
+                new_col -= 1
+            elif direction =='right':
+                new_col += 1
+
+            
+            # Check if the new position is within the garden boundaries
+            if 0 <= new_row < len(garden) and 0 <= new_col < len(garden[0]):
                 
+                    # Check if the new position is a valid move (not a rock or raked tile)
+                if garden[new_row][new_col] == '':
+                    
+                    monk_pos = (new_row, new_col)
+                    monk_dir = direction
                 
-                direction = action[1]
 
-                if direction =='up':
-                    new_row -= 1
-                elif direction == 'down':
-                    new_row += 1
-                elif direction == 'left':
-                    new_col -= 1
-                elif direction =='right':
-                    new_col += 1
-
-             
-                # Check if the new position is within the garden boundaries
-                if 0 <= new_row < len(garden) and 0 <= new_col < len(garden[0]):
-                   
-                     # Check if the new position is a valid move (not a rock or raked tile)
-                    if garden[new_row][new_col] == '':
-                        
-                        monk_pos = (new_row, new_col)
-                        monk_dir = direction
-                        
-
-
-
-
-                    #can get rid of the following and use the old monk postions and create a new monk pos    
-                    # Update monk's position based on the direction
-                        if direction == 'up':
-                            if new_row != len(garden) - 1:
-                                garden[new_row + 1][new_col] = direction
-             
-                            
-                        elif direction == 'down':
-                            if new_row != 0:
-                                garden[new_row - 1][new_col] = direction
-                     
-                            
-                        elif direction == 'left':
-                            if new_col != len(garden[0]) - 1:
-                                garden[new_row][new_col + 1] = direction
-                            
-                            
-                        elif direction == 'right':
-                            if new_col != 0:
-                                garden[new_row][new_col - 1] = direction
-                          
-                            
-
-                    else: 
-                        break 
-                else: 
-                    monk_dir = None
-                    monk_pos = None
+            #was trying to get rid of all the if statments and instead use a new and old monk pos however ran out of time. 
+                    
+                    #checks the direction the monk went and then adds the direction beind it. 
                     if direction == 'up':
-                        if new_row != len(garden):
+                        if new_row != len(garden) - 1:
                             garden[new_row + 1][new_col] = direction
-                        new_row -= 1
-                       
+            
+                        
                     elif direction == 'down':
                         if new_row != 0:
                             garden[new_row - 1][new_col] = direction
-                        new_row += 1
-                       
+                    
+                        
                     elif direction == 'left':
-                        if new_col != len(garden[0]):
+                        if new_col != len(garden[0]) - 1:
                             garden[new_row][new_col + 1] = direction
-                        new_col -= 1
-                       
+                        
+                        
                     elif direction == 'right':
                         if new_col != 0:
                             garden[new_row][new_col - 1] = direction
-                        new_col += 1
-                       
-                             
-                    break
+
+                else: 
+                    break 
+
+            else: 
+                monk_dir = None
+                monk_pos = None
+                if direction == 'up':
+                    if new_row != len(garden):
+                        garden[new_row + 1][new_col] = direction
+                    new_row -= 1
+                    
+                elif direction == 'down':
+                    if new_row != 0:
+                        garden[new_row - 1][new_col] = direction
+                    new_row += 1
+                    
+                elif direction == 'left':
+                    if new_col != len(garden[0]):
+                        garden[new_row][new_col + 1] = direction
+                    new_col -= 1
+                    
+                elif direction == 'right':
+                    if new_col != 0:
+                        garden[new_row][new_col - 1] = direction
+                    new_col += 1
+                    
+                            
+                break
 
 
-                
+        #converts the garden back into a tuple
         garden= tuple(tuple(row) for row in garden)
-        state = (tuple(tuple(tile)for tile in garden), monk_pos, monk_dir)
+        #creates the new state which is then returned. 
         state = (garden, monk_pos, monk_dir)
-        # print (state)
-        # print ('\n')
-        # visualise(state)
-
         return state
 
     
@@ -250,9 +243,7 @@ class ZenPuzzleGarden(Problem):
             return True
         else: 
             return False
-                
-                    
-            
+                  
      
 
 # Task 3
@@ -282,8 +273,8 @@ def astar_heuristic_cost(node):
             if garden[tile][col] == '':
                 col_with_empty += 1
                 break
-    
-    if row_with_empty < col_with_empty:
+    #finds if row or col has less and then returns it to be optimistic 
+    if row_with_empty > col_with_empty:
         return row_with_empty
     else: 
         return col_with_empty
