@@ -114,8 +114,8 @@ class ZenPuzzleGarden(Problem):
                     monk_dir = None
                     monk_pos = None
 
-        print(list_actions)
-        print("\n")
+        # print(list_actions)
+        # print("\n")
         
         return list_actions
     
@@ -128,7 +128,7 @@ class ZenPuzzleGarden(Problem):
         monk_pos = state[1]
         monk_dir = state[2]
         
-        #print(state)
+        
         garden = [list(row) for row in garden]
         
 
@@ -139,14 +139,25 @@ class ZenPuzzleGarden(Problem):
 
         new_row, new_col = monk_pos
         while True: 
-            
-          
+                          
+                #move the  
+                     
                 #loops through untill it goes outside the garden, hits a rock, hits a raked tile. 
                 # If monk is already in the garden, simulate its movement based on the action
                 
                 
                 direction = action[1]
 
+                if direction =='up':
+                    new_row -= 1
+                elif direction == 'down':
+                    new_row += 1
+                elif direction == 'left':
+                    new_col -= 1
+                elif direction =='right':
+                    new_col += 1
+
+             
                 # Check if the new position is within the garden boundaries
                 if 0 <= new_row < len(garden) and 0 <= new_col < len(garden[0]):
                    
@@ -156,28 +167,31 @@ class ZenPuzzleGarden(Problem):
                         monk_pos = (new_row, new_col)
                         monk_dir = direction
                         
+
+
+
+
+                    #can get rid of the following and use the old monk postions and create a new monk pos    
                     # Update monk's position based on the direction
                         if direction == 'up':
                             if new_row != len(garden) - 1:
-                                #CANT USE THE MINUS ONE TO ADD THE THING BEHIND HIM AS ELSE OVER RIGHTS IT WHEN IT IS IN THE MAP
-                                #THAT IS WHY WHEN RUNS IT IS CUTS THE MAP IN HALF AND CHANGES THE ARROWS BEHIND IT. 
                                 garden[new_row + 1][new_col] = direction
-                            new_row -= 1
+             
                             
                         elif direction == 'down':
                             if new_row != 0:
                                 garden[new_row - 1][new_col] = direction
-                            new_row += 1
+                     
                             
                         elif direction == 'left':
                             if new_col != len(garden[0]) - 1:
                                 garden[new_row][new_col + 1] = direction
-                            new_col -= 1
+                            
                             
                         elif direction == 'right':
                             if new_col != 0:
                                 garden[new_row][new_col - 1] = direction
-                            new_col += 1
+                          
                             
 
                     else: 
@@ -205,19 +219,18 @@ class ZenPuzzleGarden(Problem):
                             garden[new_row][new_col - 1] = direction
                         new_col += 1
                        
-                
-                
+                             
                     break
 
 
                 
-
         garden= tuple(tuple(row) for row in garden)
         state = (tuple(tuple(tile)for tile in garden), monk_pos, monk_dir)
         state = (garden, monk_pos, monk_dir)
         # print (state)
         # print ('\n')
         # visualise(state)
+
         return state
 
     
@@ -248,7 +261,41 @@ class ZenPuzzleGarden(Problem):
 
 # Task 3
 # Implement an A* heuristic cost function and assign it to the variable below.
-astar_heuristic_cost = None
+def astar_heuristic_cost(node):
+
+    garden, pos, dir = node.state
+    height = len(garden)
+    width = len(garden[0])
+    row_with_empty = 0
+    col_with_empty = 0
+
+    # for each row in the garden 
+    for row in range (height): 
+        #check in each tile
+        for tile in range (width) :
+            #if there is any emtpy tiles in it. 
+            if garden[row][tile] == '':
+                row_with_empty += 1
+                break
+    
+    #for each col in the garden 
+    for col in range (width): 
+        #check in each tile
+        for tile in range (height):
+            #if there is any emtpy tiles in it. 
+            if garden[tile][col] == '':
+                col_with_empty += 1
+                break
+    
+    if row_with_empty < col_with_empty:
+        return row_with_empty
+    else: 
+        return col_with_empty
+
+    
+
+
+
 
 def beam_search(problem, f, beam_width):
     # Task 4
@@ -264,11 +311,10 @@ if __name__ == "__main__":
     
     print('The loaded initial state is visualised below.')
     visualise(read_initial_state_from_file('assignment1config.txt'))
-    
+
 
     # Task 2 test code
     
-
     garden = ZenPuzzleGarden('assignment1config.txt')
     print('Running breadth-first graph search.')
     before_time = time()
@@ -283,7 +329,7 @@ if __name__ == "__main__":
     
 
     # Task 3 test code
-    '''
+    
     print('Running A* search.')
     before_time = time()
     node = astar_search(garden, astar_heuristic_cost)
@@ -294,7 +340,7 @@ if __name__ == "__main__":
         animate(node)
     else:
         print('No solution was found.')
-    '''
+    
 
     # Task 4 test code
     '''
